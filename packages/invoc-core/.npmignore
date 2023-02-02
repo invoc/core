@@ -6,3 +6,4 @@ testSetup.ts
 tsconfig.json
 tsconfig.webpack.json
 webpack.config.js
+coverage
