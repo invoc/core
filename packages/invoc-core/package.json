@@ -1,7 +1,16 @@
 {
   "name": "@invoc/core",
+  "author": {
+    "email": "carlosbf@protonmail.com",
+    "name": "Carlos Balladares",
+    "url": "https://www.carlosbf.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/invoc/core.git",
+    "directory": "packages/invoc-core"
+  },
   "version": "1.0.0",
-  "private": false,
   "packageManager": "yarn@3.2.1",
   "main": "./lib/index.js",
   "devDependencies": {

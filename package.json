@@ -1,7 +1,6 @@
 {
   "name": "invoc",
   "version": "1.0.0",
-  "private": false,
   "description": "inversion of control library",
   "main": "index.js",
   "license": "MIT",
