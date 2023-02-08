@@ -1,11 +1,15 @@
 import {
-  createDefinition,
+  defineInjectable,
+  Eager,
   InstanceManager,
-  SimpleInstanceManagementStrategy,
+  JSONString,
 } from "./InstanceManager";
 import { Store } from "./Store";
 class TestStore extends Store {}
-const storeDefinition = createDefinition({ class: TestStore });
+const storeDefinition = defineInjectable({
+  class: TestStore,
+  name: "testStore",
+});
 
 describe("Store tests", () => {
   beforeEach(() => {
@@ -13,7 +17,8 @@ describe("Store tests", () => {
   });
   it("Should create an injectable Store", () => {
     const im = new InstanceManager({
-      instanceManagementStrategy: new SimpleInstanceManagementStrategy(),
+      instantiation: Eager,
+      serialization: JSONString,
     });
     im.registerDefinitions([storeDefinition]);
 

@@ -2,14 +2,14 @@ import { IInjectionMediator } from "./InstanceManager";
 import { IInjectable, IInjector, Class } from "./types";
 
 abstract class Service implements IInjectable, IInjector {
-  private im: IInjectionMediator<Class<IInjectable>>;
-  constructor(im: IInjectionMediator<Class<IInjectable>>) {
+  private im: IInjectionMediator;
+  constructor(im: IInjectionMediator) {
     this.im = im;
   }
 
-  readonly inject = <T extends Class<IInjectable>>(store: {
-    id: Symbol;
+  readonly inject = <T extends Class<IInjectable, any>>(store: {
     class: T;
+    id: string;
   }) => {
     const im = this.im;
     return {
@@ -18,16 +18,16 @@ abstract class Service implements IInjectable, IInjector {
         if (lookup == null) {
           return null;
         }
+
         return lookup as InstanceType<T>;
       },
     };
   };
 
-  readonly pack?: () => string;
-  readonly unpack?: (serialized: string) => void;
-  readonly onRestore?: () => void;
+  readonly serialize?: () => any;
+  readonly deserialize?: (serialized: any) => void;
   readonly onInstanceCreated?: () => void;
-  readonly cleanUp?: () => void;
+  readonly onUnRegister?: () => void;
 }
 
 export { Service };
