@@ -26,3 +26,4 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: yarn install --immutable --immutable-cache
       - run: yarn workspace @invoc/core test
+      - run: yarn workspace @invoc/core build

@@ -42,34 +42,38 @@ interface Ilookup<T, V> {
   lookup(id: V): T | null;
 }
 
-interface IRegistry<T> {
-  register(args: { id: Symbol; instance: T }): boolean;
-  unregister(id: Symbol): boolean;
-}
-
 interface IInjector {
-  inject(id: { id: Symbol; class: Class<IInjectable> }): {
+  inject(id: { id: string; class: Class<IInjectable> }): {
     instance: InstanceType<Class<IInjectable>> | null;
   };
 }
 
 interface IInjectable {
-  readonly pack?: () => string;
-  readonly unpack?: (serialized: string) => void;
-  readonly onStoresRestored?: () => void;
+  readonly serialize?: () => any;
+  readonly deserialize?: (serialized: any) => void;
+  readonly onUnRegister?: () => void;
   readonly onInstanceCreated?: () => void;
-  readonly cleanUp?: () => void;
 }
 
 type Class<I, Args extends any[] = any[]> = new (...args: Args) => I;
 
+type LoggerType = (...data: any[]) => void;
+
+interface ILogger {
+  log: LoggerType;
+  warn: LoggerType;
+  error: LoggerType;
+  info: LoggerType;
+}
+
 export type {
   ISubbable,
   IEncapsulated,
-  IRegistry,
   Ilookup,
   ISubscriber,
   IInjector,
   IInjectable,
   Class,
+  LoggerType,
+  ILogger,
 };
