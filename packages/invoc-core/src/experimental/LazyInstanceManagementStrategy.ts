@@ -1,81 +1,51 @@
 import { Class, IInjectable } from "../index";
-import {
-  IInstanceManagementStrategy,
-  InjectionMediator,
-} from "../InstanceManager";
+import { InstanceManagementStrategy, IRegistryEntry } from "../InstanceManager";
 import { Service } from "../Service";
 
-class EXPERIMENTAL_LazyInstanceManagementStrategy
-  implements IInstanceManagementStrategy<Class<IInjectable, any>>
-{
-  registeredDefinitions: Map<
-    Symbol,
-    {
-      instance: IInjectable | null;
-      generateInstance: () => IInjectable;
-    }
-  > = new Map();
-
+class EXPERIMENTAL_LazyInstanceManagementStrategy extends InstanceManagementStrategy {
   onRegisterDefinitions(
-    definitions: Array<{ id: Symbol; class: Class<IInjectable> }>
+    definitions: Array<{ id: string; class: Class<IInjectable> }>
   ) {
     for (const definition of definitions) {
-      if (this.registeredDefinitions.has(definition.id)) continue;
-      this.registeredDefinitions.set(definition.id, {
-        instance: null,
-        generateInstance: () => {
-          let instance: IInjectable | null = null;
+      if (this.registry.has(definition.id)) continue;
+      const im = this.injectionMediator;
+      let instance: IInjectable | null = null;
+      const temp: IRegistryEntry = {
+        registryDate: new Date(),
+        instantiationDate: null,
+        get instance() {
+          if (instance != null) return instance;
           const defClass = definition.class;
           if (defClass.prototype instanceof Service) {
-            instance = new defClass(new InjectionMediator(this));
+            instance = new defClass(im);
           } else {
             instance = new defClass();
           }
+          this.instantiationDate = new Date();
           return instance;
         },
-      });
+      };
+      this.registry.set(definition.id, temp);
     }
   }
 
-  onUnregisterDefinitions(ids: Array<Symbol>) {
+  onUnregisterDefinitions(ids: Array<string>) {
     for (const id of ids) {
-      const retrievedDefinition = this.registeredDefinitions.get(id);
-      if (!retrievedDefinition) continue;
-      if (
-        retrievedDefinition.instance &&
-        retrievedDefinition.instance.cleanUp
-      ) {
-        retrievedDefinition.instance?.cleanUp();
+      const entry = this.registry.get(id);
+      if (!entry) continue;
+      if (entry.instance && entry.instance.onUnRegister) {
+        entry.instance.onUnRegister();
       }
-      this.registeredDefinitions.delete(id);
+      this.registry.delete(id);
     }
   }
 
-  onInjectInstance(id: Symbol) {
-    const retrieved = this.registeredDefinitions.get(id) ?? null;
-    if (retrieved == null) {
-      return null;
-    }
-    let instance = retrieved.instance;
-
-    if (instance == null) {
-      instance = retrieved.generateInstance();
-      this.registeredDefinitions.set(id, { ...retrieved, instance });
-    }
-
-    return instance;
-  }
-
-  onListInstanceIds() {
-    return Array.from(this.registeredDefinitions.keys());
+  onListRegisteredIds() {
+    return Array.from(this.registry.keys());
   }
 
   onDropInstances() {
-    this.onUnregisterDefinitions(Array.from(this.registeredDefinitions.keys()));
-  }
-
-  onStrategyChange() {
-    this.onDropInstances();
+    this.onUnregisterDefinitions(Array.from(this.registry.keys()));
   }
 }
 

@@ -1,11 +1,15 @@
 import {
-  createDefinition,
+  defineInjectable,
   InstanceManager,
-  SimpleInstanceManagementStrategy,
+  Eager,
+  JSONString,
 } from "./InstanceManager";
 import { Service } from "./Service";
 class TestService extends Service {}
-const ServiceDefinition = createDefinition({ class: TestService });
+const ServiceDefinition = defineInjectable({
+  class: TestService,
+  name: "TestService",
+});
 
 describe("Service tests", () => {
   beforeEach(() => {
@@ -13,11 +17,56 @@ describe("Service tests", () => {
   });
   it("Should create an injectable Service", () => {
     const im = new InstanceManager({
-      instanceManagementStrategy: new SimpleInstanceManagementStrategy(),
+      instantiation: Eager,
+      serialization: JSONString,
     });
     im.registerDefinitions([ServiceDefinition]);
 
     const instance = im.injectInstance(ServiceDefinition.id);
     expect(instance).toBeInstanceOf(TestService);
+  });
+
+  it("Should inject registered services", () => {
+    const im = new InstanceManager({
+      instantiation: Eager,
+      serialization: JSONString,
+    });
+    class Example extends Service {
+      test() {
+        const a = this.inject(ServiceDefinition).instance;
+        return a;
+      }
+    }
+    const ExampleDef = defineInjectable({
+      class: Example,
+      name: "ExampleService",
+    });
+
+    im.registerDefinitions([ServiceDefinition, ExampleDef]);
+
+    const instance = im.injectInstance<Example>(ExampleDef.id);
+    expect(instance?.test()).toBeInstanceOf(TestService);
+  });
+
+  it("Should return null if injected service is not registerred", () => {
+    const im = new InstanceManager({
+      instantiation: Eager,
+      serialization: JSONString,
+    });
+    class Example extends Service {
+      test() {
+        const a = this.inject(ServiceDefinition).instance;
+        return a;
+      }
+    }
+    const ExampleDef = defineInjectable({
+      class: Example,
+      name: "ExampleService",
+    });
+
+    im.registerDefinitions([ExampleDef]);
+
+    const instance = im.injectInstance<Example>(ExampleDef.id);
+    expect(instance?.test()).toBeNull();
   });
 });

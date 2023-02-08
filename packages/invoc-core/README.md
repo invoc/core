@@ -13,7 +13,7 @@ class ExampleService implements Service {
   };
 }
 
-const serviceDefinition = createDefinition({ class: UserStore });
+const serviceDefinition = defineInjectable({ class: UserStore });
 
 class ExampleStore implements Store {
   readonly customObservable = new Observable(100);
@@ -22,7 +22,7 @@ class ExampleStore implements Store {
   };
 }
 
-const storeDefinition = createDefinition({ class: UserStore2 });
+const storeDefinition = defineInjectable({ class: UserStore2 });
 ```
 
 ```mermaid
