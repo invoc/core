@@ -5,9 +5,7 @@ interface IInstanceManager<S = any> {
     args: Array<InjectableDefinition<Class<IInjectable>>>
   ): void;
   unregisterDefinitions(id: Array<string>): void;
-  injectInstance<S extends InstanceType<Class<IInjectable>>>(
-    id: string
-  ): S | null;
+  injectInstance<S extends InstanceType<Class<IInjectable>>>(id: string): S;
   dropInstances(): void;
   listRegisteredIds(): Array<string>;
   serialize(): S;
@@ -131,7 +129,7 @@ class Eager extends InstanceManagementStrategy {
 }
 
 export interface IInjectionMediator {
-  inject(id: string): IInjectable | null;
+  inject(id: string): IInjectable;
 }
 
 class InjectionMediator implements IInjectionMediator {
@@ -140,7 +138,14 @@ class InjectionMediator implements IInjectionMediator {
     this.registry = registry;
   }
   public inject(id: string) {
-    return this.registry.get(id)?.instance ?? null;
+    const res = this.registry.get(id);
+    if (res == null || res.instance == null) {
+      throw new Error(
+        `Could not find instance to inject ${id}, make sure its registered.`
+      );
+    }
+
+    return res.instance;
   }
 }
 
@@ -179,7 +184,11 @@ class InstanceManager<S = any> implements IInstanceManager<S> {
 
   injectInstance<S extends InstanceType<Class<IInjectable>>>(id: string) {
     const res = this.registry.get(id);
-    if (!res || !res.instance) return null;
+    if (res == null || res.instance == null) {
+      throw new Error(
+        `Could not find instance to inject ${id}, make sure its registered.`
+      );
+    }
     return res.instance as S;
   }
 

@@ -11,17 +11,7 @@ abstract class Service implements IInjectable, IInjector {
     class: T;
     id: string;
   }) => {
-    const im = this.im;
-    return {
-      get instance() {
-        const lookup = im.inject(store.id);
-        if (lookup == null) {
-          return null;
-        }
-
-        return lookup as InstanceType<T>;
-      },
-    };
+    return this.im.inject(store.id) as InstanceType<T>;
   };
 
   readonly serialize?: () => any;
