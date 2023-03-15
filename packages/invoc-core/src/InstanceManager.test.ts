@@ -119,9 +119,16 @@ describe("InstanceManager tests", () => {
 
     const t = im.injectInstance<ExampleService>("example-service");
     expect(t).toBeInstanceOf(ExampleService);
-    expect(t).not.toBeNull();
-    // should not inject unknown instances
-    expect(im.injectInstance("test")).toBeNull();
+  });
+  it("Should throw when unknown injectables are requested", () => {
+    const im = new InstanceManager({
+      instantiation: Eager,
+      serialization: SpySerStrategy,
+    });
+    const helper = () => {
+      im.injectInstance("example-service");
+    };
+    expect(helper).toThrow();
   });
 });
 
@@ -421,7 +428,6 @@ describe("InjectionMediator tests", () => {
     class TestService extends Service {
       onInstanceCreated = serviceSpy;
       store = this.inject(testStoreDefinition);
-      unknownStore = this.inject({ id: "unknown", class: class {} });
     }
 
     const testStoreDefinition = defineInjectable({
@@ -436,9 +442,37 @@ describe("InjectionMediator tests", () => {
     const service = im.injectInstance<TestService>(testServiceDefinition.id);
 
     // known store should be an instance
-    expect(service?.store.instance).not.toBe(null);
-    expect(service?.store.instance?.value).toBe(2);
-    // unknown store should be null
-    expect(service?.unknownStore.instance).toBe(null);
+    expect(service?.store).not.toBe(null);
+    expect(service?.store.value).toBe(2);
+  });
+  it("Shoud throw when injecting an unknown injectable", () => {
+    const im = new InstanceManager<string>({
+      instantiation: Eager,
+      serialization: JSONString,
+    });
+    const storeSpy = jest.fn();
+    class TestStore extends Store {
+      onInstanceCreated = storeSpy;
+      value = 2;
+    }
+    const serviceSpy = jest.fn();
+
+    class TestService extends Service {
+      onInstanceCreated = serviceSpy;
+      store = this.inject(testStoreDefinition);
+    }
+
+    const testStoreDefinition = defineInjectable({
+      class: TestStore,
+      name: "test-store",
+    });
+    const testServiceDefinition = defineInjectable({
+      class: TestService,
+      name: "test-service",
+    });
+    const helper = () => {
+      im.registerDefinitions([testServiceDefinition]);
+    };
+    expect(helper).toThrow();
   });
 });

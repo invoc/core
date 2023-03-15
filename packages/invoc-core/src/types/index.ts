@@ -43,9 +43,10 @@ interface Ilookup<T, V> {
 }
 
 interface IInjector {
-  inject(id: { id: string; class: Class<IInjectable> }): {
-    instance: InstanceType<Class<IInjectable>> | null;
-  };
+  inject(id: {
+    id: string;
+    class: Class<IInjectable>;
+  }): InstanceType<Class<IInjectable>>;
 }
 
 interface IInjectable {

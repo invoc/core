@@ -33,7 +33,7 @@ describe("Service tests", () => {
     });
     class Example extends Service {
       test() {
-        const a = this.inject(ServiceDefinition).instance;
+        const a = this.inject(ServiceDefinition);
         return a;
       }
     }
@@ -48,14 +48,14 @@ describe("Service tests", () => {
     expect(instance?.test()).toBeInstanceOf(TestService);
   });
 
-  it("Should return null if injected service is not registerred", () => {
+  it("Should throw if injected service is not registerred", () => {
     const im = new InstanceManager({
       instantiation: Eager,
       serialization: JSONString,
     });
     class Example extends Service {
       test() {
-        const a = this.inject(ServiceDefinition).instance;
+        const a = this.inject(ServiceDefinition);
         return a;
       }
     }
@@ -65,8 +65,9 @@ describe("Service tests", () => {
     });
 
     im.registerDefinitions([ExampleDef]);
-
-    const instance = im.injectInstance<Example>(ExampleDef.id);
-    expect(instance?.test()).toBeNull();
+    const helper = () => {
+      im.injectInstance<Example>(ExampleDef.id).test();
+    };
+    expect(helper).toThrow(Error);
   });
 });
