@@ -1,6 +1,6 @@
 {
   "name": "invoc",
-  "version": "1.1.5",
+  "version": "1.2.1",
   "description": "inversion of control library",
   "main": "index.js",
   "license": "MIT",
@@ -12,10 +12,12 @@
   "packageManager": "yarn@3.4.1",
   "workspaces": {
     "packages": [
-      "packages/invoc-core"
+      "packages/invoc-core",
+      "packages/invoc-test-utils"
     ]
   },
   "devDependencies": {
+    "@types/node": "^18.15.11",
     "prettier": "^2.8.3",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5"
