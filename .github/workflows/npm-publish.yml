@@ -20,7 +20,7 @@ jobs:
       - run: yarn workspace @invoc/core test
       - run: yarn workspace @invoc/core build
       - run: yarn workspace @invoc/test-utils build
-      - run: cd packages/invoc-core && npm publish
-      - run: cd packages/invoc-test-utils && npm publish
+      - run: cd packages/invoc-core && npm publish --access public
+      - run: cd packages/invoc-test-utils && npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
