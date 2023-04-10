@@ -27,3 +27,4 @@ jobs:
       - run: yarn install --immutable --immutable-cache
       - run: yarn workspace @invoc/core test
       - run: yarn workspace @invoc/core build
+      - run: yarn workspace @invoc/test-utils build
